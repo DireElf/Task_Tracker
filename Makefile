@@ -2,34 +2,34 @@ setup:
 	gradle wrapper --gradle-version 7.5.1
 
 clean:
-	./gradlew clean
+	gradlew clean
 
 build:
-	./gradlew clean build
+	gradlew clean build
 
 start:
-	./gradlew bootRun
+	gradlew bootRun
 
 install:
-	./gradlew installDist
+	gradlew installDist
 
 start-dist:
-	./build/install/app/bin/app
+	build/install/app/bin/app
 
 lint:
-	./gradlew checkstyleMain checkstyleTest
+	gradlew checkstyleMain checkstyleTest
 
 test:
-	./gradlew test
+	gradlew test
 
 report:
-	./gradlew jacocoTestReport
+	gradlew jacocoTestReport
 
 check-updates:
-	./gradlew dependencyUpdates
+	gradlew dependencyUpdates
 
 generate-migrations:
 	gradle diffChangeLog
 
 db-migrate:
-	./gradlew update
+	gradlew update
