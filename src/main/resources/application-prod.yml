@@ -12,7 +12,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: "jdbc:postgresql://${{ PGUSER }}:${{ PGPASSWORD }}@${{ PGHOST }}:6923/${{ PGDATABASE }}"
+    url: "jdbc:postgresql://postgres:xC8Hnje6vRAv3otyaACi@containers-us-west-17.railway.app:6923/railway"
 
   jpa:
     database: postgresql
