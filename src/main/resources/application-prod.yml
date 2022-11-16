@@ -10,11 +10,9 @@ spring:
       enabled: false
 
   datasource:
-    driver-class-name: org.postgresql.Driver
     url: "jdbc:postgresql://"
 
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
     show-sql: false
 
 logging:
