@@ -1,4 +1,5 @@
 server:
+  port: ${PORT}
   error:
     include-stacktrace: never
 
