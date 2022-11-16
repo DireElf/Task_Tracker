@@ -11,16 +11,16 @@ spring:
       enabled: false
 
   datasource:
-    database: railway
+    database: ${PGDATABASE}
     username: ${PGUSER}
     password: ${PGPASSWORD}
     port: ${PGPORT}
     host: ${PGHOST}
     driver-class-name: org.postgresql.Driver
-    url: "jdbc:postgresql://"
+    url: "jdbc:postgresql://${{ PGUSER }}:${{ PGPASSWORD }}@${{ PGHOST }}:${{ PGPORT }}/${{ PGDATABASE }}"
 
   jpa:
-    database: postgres
+    database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQL10Dialect
     show-sql: false
 
