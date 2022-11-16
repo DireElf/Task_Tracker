@@ -8,7 +8,10 @@ build:
 	./gradlew clean build
 
 start:
-	./gradlew bootRun
+	./gradlew bootRun --args='--spring.profiles.active=dev'
+
+start-prod:
+	./gradlew bootRun --args='--spring.profiles.active=prod'
 
 install:
 	./gradlew installDist
