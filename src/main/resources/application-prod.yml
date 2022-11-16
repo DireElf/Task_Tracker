@@ -11,9 +11,9 @@ spring:
       enabled: false
 
   datasource:
-    username: ""
-    password: ""
-    url: ${JDBC_DATABASE_URL}
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
+    url: ${DATABASE_URL}
 
   jpa:
     show-sql: false
