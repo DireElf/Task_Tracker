@@ -1,5 +1,4 @@
 server:
-  port: ${PORT}
   error:
     include-stacktrace: never
 
@@ -12,7 +11,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: "jdbc:postgresql://postgres:xC8Hnje6vRAv3otyaACi@containers-us-west-17.railway.app:6923/railway"
+    url: "jdbc:postgresql://"
 
   jpa:
     database: postgresql
