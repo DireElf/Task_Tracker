@@ -11,13 +11,8 @@ spring:
       enabled: false
 
   datasource:
-    database: ${PGDATABASE}
-    username: ${PGUSER}
-    password: ${PGPASSWORD}
-    port: ${PGPORT}
-    host: ${PGHOST}
     driver-class-name: org.postgresql.Driver
-    url: "jdbc:postgresql://${{ PGUSER }}:${{ PGPASSWORD }}@${{ PGHOST }}:${{ PGPORT }}/${{ PGDATABASE }}"
+    url: "jdbc:postgresql://${{ PGUSER }}:${{ PGPASSWORD }}@${{ PGHOST }}:6923/${{ PGDATABASE }}"
 
   jpa:
     database: postgresql
