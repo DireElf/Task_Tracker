@@ -11,11 +11,14 @@ spring:
       enabled: false
 
   datasource:
+    driver-class-name: org.postgresql.Driver
     username: ${PGUSER}
     password: ${PGPASSWORD}
     url: "jdbc:${{DATABASE_URL}}"
 
   jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
     show-sql: false
 
 logging:
