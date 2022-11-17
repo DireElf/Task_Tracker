@@ -16,7 +16,7 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 
 @Entity
 @Table(name = "users")
-public class User {
+public final class User {
 
     // fields
 
