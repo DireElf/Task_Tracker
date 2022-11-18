@@ -22,7 +22,7 @@ public final class User {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(unique = true)
     @NotBlank
