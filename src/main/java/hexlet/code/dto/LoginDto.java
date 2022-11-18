@@ -4,14 +4,14 @@ import java.util.Objects;
 
 public class LoginDto {
 
-    private String username;
+    private String email;
 
     private String password;
 
     // constructors
 
-    public LoginDto(String username, String password) {
-        this.username = username;
+    public LoginDto(String email, String password) {
+        this.email = email;
         this.password = password;
     }
 
@@ -20,12 +20,12 @@ public class LoginDto {
 
     // getters and setters
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
@@ -47,19 +47,19 @@ public class LoginDto {
             return false;
         }
         LoginDto loginDto = (LoginDto) o;
-        return Objects.equals(username, loginDto.username) && Objects.equals(password, loginDto.password);
+        return Objects.equals(email, loginDto.email) && Objects.equals(password, loginDto.password);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username, password);
+        return Objects.hash(email, password);
     }
 
     // toString
 
     @Override
     public String toString() {
-        return "LoginDto{" + "username='" + username + '\''
+        return "LoginDto{" + "email='" + email + '\''
                 + ", password='" + password + '\'' + '}';
     }
 }

@@ -32,14 +32,14 @@ public class JWTHelper {
         this.clock = DefaultClock.INSTANCE;
     }
 
-    public String expiring(final Map<String, Object> attributes) {
+    public final String expiring(final Map<String, Object> attributes) {
         return Jwts.builder()
                 .signWith(HS256, secretKey)
                 .setClaims(getClaims(attributes, expirationSec))
                 .compact();
     }
 
-    public Map<String, Object> verify(final String token) {
+    public final Map<String, Object> verify(final String token) {
         return Jwts.parser()
                 .requireIssuer(issuer)
                 .setClock(clock)
