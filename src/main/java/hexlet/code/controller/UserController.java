@@ -9,6 +9,7 @@ import hexlet.code.service.UserService;
 //import io.swagger.v3.oas.annotations.media.Schema;
 //import io.swagger.v3.oas.annotations.responses.ApiResponse;
 //import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,7 @@ import static hexlet.code.controller.UserController.USER_CONTROLLER_PATH;
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("${base-url}" + USER_CONTROLLER_PATH)
 public class UserController {
 
@@ -81,12 +83,5 @@ public class UserController {
     @DeleteMapping(ID)
     public void deleteUser(@PathVariable long id) {
         userRepository.deleteById(id);
-    }
-
-    // constructor
-
-    public UserController(UserService userService, UserRepository userRepository) {
-        this.userService = userService;
-        this.userRepository = userRepository;
     }
 }

@@ -3,6 +3,8 @@ package hexlet.code.service;
 import hexlet.code.dto.UserDto;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
+import lombok.AllArgsConstructor;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,6 +17,7 @@ import static hexlet.code.config.security.SecurityConfig.DEFAULT_AUTHORITIES;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
@@ -22,11 +25,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User createNewUser(UserDto userDto) {
-        User user = new User();
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        User user = new User(
+            userDto.getFirstName(), 
+            userDto.getLastName(), 
+            userDto.getEmail(), 
+            passwordEncoder.encode(userDto.getPassword()));
         return userRepository.save(user);
     }
 
@@ -51,10 +54,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-        return userRepository.findByEmail(username)
+    public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email)
                 .map(this::buildSpringUser)
-                .orElseThrow(() -> new UsernameNotFoundException("Not found user with 'username': " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Not found user with 'email': " + username));
     }
 
     private UserDetails buildSpringUser(final User user) {
@@ -63,12 +66,5 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 user.getPassword(),
                 DEFAULT_AUTHORITIES
         );
-    }
-
-    // constructor
-
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 }
