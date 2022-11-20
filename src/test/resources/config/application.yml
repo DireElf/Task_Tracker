@@ -1,8 +1,8 @@
-base-url: ""
+base-url: "/api"
 
 spring:
   application:
-    name: hexletBlog
+    name: taskTracker
 
   jpa:
     show-sql: true

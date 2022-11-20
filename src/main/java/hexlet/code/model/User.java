@@ -21,11 +21,11 @@ import static javax.persistence.GenerationType.IDENTITY;
 import static javax.persistence.TemporalType.TIMESTAMP;
 
 @Entity
-@Table(name = "users")
 @Getter
 @Setter
-@AllArgsConstructor
+@Table(name = "users")
 @NoArgsConstructor
+@AllArgsConstructor
 public final class User {
 
     @Id

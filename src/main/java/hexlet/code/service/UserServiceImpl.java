@@ -25,11 +25,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User createNewUser(UserDto userDto) {
-        User user = new User(
-            userDto.getFirstName(), 
-            userDto.getLastName(), 
-            userDto.getEmail(), 
-            passwordEncoder.encode(userDto.getPassword()));
+        User user = new User();
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         return userRepository.save(user);
     }
 
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
                 .map(this::buildSpringUser)
-                .orElseThrow(() -> new UsernameNotFoundException("Not found user with 'email': " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Not found user with 'email': " + email));
     }
 
     private UserDetails buildSpringUser(final User user) {

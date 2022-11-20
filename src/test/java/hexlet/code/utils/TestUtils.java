@@ -7,12 +7,14 @@ import hexlet.code.component.JWTHelper;
 import hexlet.code.dto.UserDto;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+
+import java.util.Map;
+import java.util.Set;
 
 import static hexlet.code.controller.UserController.USER_CONTROLLER_PATH;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -21,20 +23,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @Component
 public class TestUtils {
-
-    public static final String TEST_EMAIL = "email@email.com";
-    public static final String TEST_EMAIL_2 = "email2@email.com";
+    public static final String BASE_URL = "/api";
+    public static final String TEST_USERNAME = "email@email.com";
+    public static final String TEST_USERNAME_2 = "email2@email.com";
 
     private final UserDto testRegistrationDto = new UserDto(
-            TEST_EMAIL,
+            TEST_USERNAME,
             "fname",
             "lname",
             "pwd"
     );
-
-    public UserDto getTestRegistrationDto() {
-        return testRegistrationDto;
-    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,6 +47,10 @@ public class TestUtils {
         userRepository.deleteAll();
     }
 
+    public UserDto getTestRegistrationDto() {
+        return testRegistrationDto;
+    }
+
     public User getUserByEmail(final String email) {
         return userRepository.findByEmail(email).get();
     }
@@ -58,7 +60,7 @@ public class TestUtils {
     }
 
     public ResultActions regUser(final UserDto dto) throws Exception {
-        final var request = post(USER_CONTROLLER_PATH)
+        final var request = post(BASE_URL + USER_CONTROLLER_PATH)
                 .content(asJson(dto))
                 .contentType(APPLICATION_JSON);
 
