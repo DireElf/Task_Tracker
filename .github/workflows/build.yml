@@ -12,11 +12,11 @@ jobs:
       - name: run Gradle build
         run: make build
       - name: get coverage report
-        uses: paambaati/codeclimate-action@v2.7.1
+        uses: paambaati/codeclimate-action@v3.0.0
         env:
           CC_TEST_REPORTER_ID: ${{secrets.CODE_CLIMATE}}
-          JACOCO_SOURCE_PATH: ${{github.workspace}}/app/src/main/java
+          JACOCO_SOURCE_PATH: ${{github.workspace}}/src/main/java
         with:
           coverageCommand: make report
-          coverageLocations: ${{github.workspace}}/app/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
+          coverageLocations: ${{github.workspace}}/build/reports/jacoco/test/jacocoTestReport.xml:jacoco
 

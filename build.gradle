@@ -74,6 +74,7 @@ compileJava {
 
 test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
 
 diffChangeLog {
