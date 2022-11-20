@@ -51,6 +51,6 @@ public final class User {
     private Date createdAt;
 
     public User(Long id) {
-    this.id = id;
+        this.id = id;
     }
 }
