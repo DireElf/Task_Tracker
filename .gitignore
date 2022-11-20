@@ -40,3 +40,7 @@ out/
 *.mv.db
 *.trace.db
 
+### Frontend ###
+node
+frontend/build
+frontend/node_modules
