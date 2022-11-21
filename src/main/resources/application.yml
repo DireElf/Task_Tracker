@@ -11,10 +11,6 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/changelog-master.xml
 
-  jpa:
-    hibernate:                        
-      ddl-auto: create-drop
-
   mvc:
     hiddenmethod:
       filter:
