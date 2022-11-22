@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 @Profile(SpringConfigForIT.TEST_PROFILE)
 @EnableAspectJAutoProxy
 @ComponentScan(basePackages = "hexlet.code")
-@PropertySource(value = "classpath:/config/application.yml")
+@PropertySource(value = "classpath:/config/application.yaml")
 public class SpringConfigForIT {
 
     public static final String TEST_PROFILE = "test";
