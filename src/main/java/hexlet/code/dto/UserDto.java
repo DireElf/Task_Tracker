@@ -13,18 +13,16 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public final class UserDto {
     @NotBlank
-    @Email(message = "Incorrect email format")
+    @Email
     private String email;
 
     @NotBlank
-    @Size(min = 1, message = "First name must be longer than 1 character")
     private String firstName;
 
     @NotBlank
-    @Size(min = 1, message = "Last name must be longer than 1 character")
     private String lastName;
 
     @NotBlank
-    @Size(min = 3, message = "Password must be longer than 3 characters")
+    @Size(min = 3, max = 1000)
     private String password;
 }

@@ -12,7 +12,6 @@ spring:
     hibernate:                        
       ddl-auto: create-drop  
 
-  jpa:
     show-sql: true
 
   h2:

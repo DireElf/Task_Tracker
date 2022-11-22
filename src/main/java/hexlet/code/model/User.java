@@ -1,20 +1,23 @@
 package hexlet.code.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+
 import javax.validation.constraints.NotBlank;
+
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.hibernate.annotations.CreationTimestamp;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -27,10 +30,9 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 @NoArgsConstructor
 @AllArgsConstructor
 public final class User {
-
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(unique = true)
     @NotBlank
@@ -50,7 +52,6 @@ public final class User {
     @Temporal(TIMESTAMP)
     private Date createdAt;
 
-    public User(Long id) {
-        this.id = id;
+    public User(Long aLong) {
     }
 }

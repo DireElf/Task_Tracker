@@ -1,19 +1,11 @@
 server:
   error:
     include-stacktrace: never
-
-spring:
-  devtools:
-    restart:
-      enabled: false
-    livereload:
-      enabled: false
       
   jpa:
     hibernate:                        
-      ddl-auto: none 
+      ddl-auto: create
 
-  jpa:
     show-sql: false      
 
   datasource:

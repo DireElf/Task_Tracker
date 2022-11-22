@@ -3,7 +3,8 @@ package hexlet.code.service;
 import hexlet.code.dto.UserDto;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
-import lombok.AllArgsConstructor;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,7 +18,7 @@ import static hexlet.code.config.security.SecurityConfig.DEFAULT_AUTHORITIES;
 
 @Service
 @Transactional
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepository userRepository;
