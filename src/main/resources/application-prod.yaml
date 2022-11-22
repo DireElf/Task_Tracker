@@ -5,7 +5,7 @@ server:
   jpa:
     hibernate:                        
       ddl-auto: create
-
+    database: postgresql
     show-sql: false      
 
   datasource:
