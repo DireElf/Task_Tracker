@@ -15,4 +15,8 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
-
+        
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+      

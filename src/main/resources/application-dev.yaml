@@ -7,10 +7,6 @@ spring:
     username: ""
     password: ""
     url: "jdbc:h2:./taskTracker"
-    
-  jpa:
-    hibernate:                        
-      ddl-auto: create-drop  
 
     show-sql: true
 
