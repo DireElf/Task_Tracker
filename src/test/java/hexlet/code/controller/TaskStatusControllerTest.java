@@ -1,16 +1,14 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import hexlet.code.config.SpringConfigForIT;
 import hexlet.code.dto.TaskStatusDto;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskStatusRepository;
-
+import hexlet.code.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,23 +19,19 @@ import java.util.List;
 
 import static hexlet.code.controller.TaskStatusController.STATUS_CONTROLLER_PATH;
 import static hexlet.code.controller.UserController.ID;
-
+import static hexlet.code.utils.TestUtils.BASE_URL;
+import static hexlet.code.utils.TestUtils.TEST_EMAIL_1;
+import static hexlet.code.utils.TestUtils.TEST_STATUS_1;
+import static hexlet.code.utils.TestUtils.TEST_STATUS_2;
+import static hexlet.code.utils.TestUtils.asJson;
+import static hexlet.code.utils.TestUtils.fromJson;
 import static org.assertj.core.api.Assertions.assertThat;
-
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-
-import hexlet.code.utils.TestUtils;
-import static hexlet.code.utils.TestUtils.asJson;
-import static hexlet.code.utils.TestUtils.fromJson;
-import static hexlet.code.utils.TestUtils.BASE_URL;
-import static hexlet.code.utils.TestUtils.TEST_STATUS_1;
-import static hexlet.code.utils.TestUtils.TEST_STATUS_2;
-import static hexlet.code.utils.TestUtils.TEST_EMAIL_1;
 
 @AutoConfigureMockMvc
 @ActiveProfiles(SpringConfigForIT.TEST_PROFILE)
