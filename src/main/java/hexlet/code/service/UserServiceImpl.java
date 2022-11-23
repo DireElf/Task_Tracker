@@ -25,22 +25,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public User createNewUser(UserDto userDto) {
+    public User createNewUser(UserDto dto) {
         User user = new User();
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         return userRepository.save(user);
     }
 
     @Override
-    public User updateUser(final long id, final UserDto userDto) {
+    public User updateUser(long id, UserDto dto) {
         final User userToUpdate = userRepository.findById(id).get();
-        userToUpdate.setEmail(userDto.getEmail());
-        userToUpdate.setFirstName(userDto.getFirstName());
-        userToUpdate.setLastName(userDto.getLastName());
-        userToUpdate.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        userToUpdate.setEmail(dto.getEmail());
+        userToUpdate.setFirstName(dto.getFirstName());
+        userToUpdate.setLastName(dto.getLastName());
+        userToUpdate.setPassword(passwordEncoder.encode(dto.getPassword()));
         return userRepository.save(userToUpdate);
     }
 
@@ -55,13 +55,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
                 .map(this::buildSpringUser)
                 .orElseThrow(() -> new UsernameNotFoundException("Not found user with 'email': " + email));
     }
 
-    private UserDetails buildSpringUser(final User user) {
+    private UserDetails buildSpringUser(User user) {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),

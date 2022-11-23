@@ -5,11 +5,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hexlet.code.component.JWTHelper;
+import hexlet.code.dto.LabelDto;
 import hexlet.code.dto.TaskDto;
 import hexlet.code.dto.TaskStatusDto;
 import hexlet.code.dto.UserDto;
+import hexlet.code.model.Label;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
@@ -20,11 +23,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.util.List;
 import java.util.Map;
 
 import static hexlet.code.controller.UserController.USER_CONTROLLER_PATH;
 import static hexlet.code.controller.TaskStatusController.STATUS_CONTROLLER_PATH;
 import static hexlet.code.controller.TaskController.TASK_CONTROLLER_PATH;
+import static hexlet.code.controller.LabelController.LABEL_CONTROLLER_PATH;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -37,6 +42,8 @@ public class TestUtils {
     public static final String TEST_EMAIL_2 = "email2@email.com";
     public static final String TEST_STATUS_1 = "status1";
     public static final String TEST_STATUS_2 = "status2";
+    public static final String TEST_LABEL_1 = "label1";
+    public static final String TEST_LABEL_2 = "label2";
 
     private final UserDto testUserDto = new UserDto(
             TEST_EMAIL_1,
@@ -45,9 +52,9 @@ public class TestUtils {
             "pwd"
     );
 
-    private final TaskStatusDto testTaskStatusDto = new TaskStatusDto(
-            TEST_STATUS_1
-    );
+    private final TaskStatusDto testTaskStatusDto = new TaskStatusDto(TEST_STATUS_1);
+
+    private final LabelDto testLabelDto = new LabelDto(TEST_LABEL_1);
 
     @Autowired
     private MockMvc mockMvc;
@@ -64,10 +71,14 @@ public class TestUtils {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private LabelRepository labelRepository;
+
     public void tearDown() {
         // ordered execution
         taskRepository.deleteAll();
         taskStatusRepository.deleteAll();
+        labelRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -129,11 +140,17 @@ public class TestUtils {
     public ResultActions regDefaultTask(final String byUser) throws Exception {
         regDefaultUser();
         regDefaultStatus(TEST_EMAIL_1);
+        regDefaultLabel(TEST_EMAIL_1);
 
         final User user = userRepository.findAll().get(0);
         final TaskStatus taskStatus = taskStatusRepository.findAll().get(0);
+        final Label label = labelRepository.findAll().get(0);
         final TaskDto testRegTaskDto = new TaskDto(
-                "Task name", "Task description", taskStatus.getId(), user.getId()
+                "Task name",
+                "Task description",
+                taskStatus.getId(),
+                user.getId(),
+                List.of(label.getId())
         );
 
         return regTask(testRegTaskDto, byUser);
@@ -141,6 +158,20 @@ public class TestUtils {
 
     public ResultActions regTask(final TaskDto dto, final String byUser) throws Exception {
         final var request = post(BASE_URL + TASK_CONTROLLER_PATH)
+                .content(asJson(dto))
+                .contentType(APPLICATION_JSON);
+
+        return perform(request, byUser);
+    }
+
+    // label utils
+
+    public ResultActions regDefaultLabel(final String byUser) throws Exception {
+        return regLabel(testLabelDto, byUser);
+    }
+
+    public ResultActions regLabel(final LabelDto dto, final String byUser) throws Exception {
+        final var request = post(BASE_URL + LABEL_CONTROLLER_PATH)
                 .content(asJson(dto))
                 .contentType(APPLICATION_JSON);
 

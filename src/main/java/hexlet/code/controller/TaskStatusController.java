@@ -43,14 +43,14 @@ public class TaskStatusController {
         return taskStatusRepository.findById(id);
     }
 
-    @GetMapping
+    @GetMapping("")
     public List<TaskStatus> getAllStatuses() throws Exception {
         return taskStatusRepository.findAll()
                 .stream()
                 .toList();
     }
 
-    @PostMapping
+    @PostMapping("")
     @ResponseStatus(CREATED)
     public TaskStatus createStatus(@RequestBody @Valid TaskStatusDto taskStatusDto) {
         return taskStatusService.createStatus(taskStatusDto);
