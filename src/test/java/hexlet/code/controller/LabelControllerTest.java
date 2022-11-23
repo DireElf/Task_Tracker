@@ -26,7 +26,6 @@ import static hexlet.code.utils.TestUtils.BASE_URL;
 import static hexlet.code.utils.TestUtils.TEST_EMAIL_1;
 import static hexlet.code.utils.TestUtils.TEST_LABEL_1;
 import static hexlet.code.utils.TestUtils.TEST_LABEL_2;
-import static hexlet.code.utils.TestUtils.TEST_STATUS_2;
 
 import static hexlet.code.utils.TestUtils.asJson;
 import static hexlet.code.utils.TestUtils.fromJson;
