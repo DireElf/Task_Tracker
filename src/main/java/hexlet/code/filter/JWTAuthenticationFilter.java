@@ -1,5 +1,6 @@
 package hexlet.code.filter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.component.JWTHelper;
 import hexlet.code.dto.LoginDto;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();

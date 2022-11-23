@@ -53,10 +53,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByEmail(username)
                 .map(this::buildSpringUser)
-                .orElseThrow(() -> new UsernameNotFoundException("Not found user with 'email': " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Not found user with 'email': " + username));
     }
 
     private UserDetails buildSpringUser(User user) {
