@@ -1,17 +1,18 @@
 server:
   error:
     include-stacktrace: never
-      
-  jpa:
-    hibernate:                        
-      ddl-auto: create
-    database: postgresql
-    show-sql: false      
 
+spring:
   datasource:
     username: ${PROD_DB_USERNAME}
     password: ${PROD_DB_PASSWORD}
     url: jdbc:postgresql://${PROD_DB_HOST}:${PROD_DB_PORT}/${PROD_DB_NAME}
+
+    show-sql: false
+
+    jpa:
+      hibernate:
+        ddl-auto: update
 
 logging:
   level:

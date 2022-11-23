@@ -46,7 +46,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                 .map(jwtHelper::verify)
                 .map(claims -> claims.get(SPRING_SECURITY_FORM_USERNAME_KEY))
                 .map(Object::toString)
-                .map(this::buildAuthToken)
+                .map(username -> buildAuthToken(username))
                 .orElseThrow();
 
 
