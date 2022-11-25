@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -49,9 +50,9 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.save(taskToUpdate);
     }
 
-    private List<Label> getLabelsByIds(TaskDto dto) {
+    private Set<Label> getLabelsByIds(TaskDto dto) {
         return dto.getLabelIds().stream()
                 .map(id -> labelRepository.findById(id).get())
-                .toList();
+                .collect(Collectors.toSet());
     }
 }

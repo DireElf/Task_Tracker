@@ -9,7 +9,7 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,5 +28,5 @@ public class TaskDto {
 
     private Long executorId;
 
-    private List<Long> labelIds;
+    private Set<Long> labelIds;
 }

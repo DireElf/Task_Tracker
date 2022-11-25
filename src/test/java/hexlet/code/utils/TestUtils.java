@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import java.util.List;
+import java.util.Set;
 import java.util.Map;
 
 import static hexlet.code.controller.LabelController.LABEL_CONTROLLER_PATH;
@@ -151,7 +151,7 @@ public class TestUtils {
                 "Task description",
                 taskStatus.getId(),
                 user.getId(),
-                List.of(label.getId())
+                Set.of(label.getId())
         );
 
         return regTask(testRegTaskDto, byUser);

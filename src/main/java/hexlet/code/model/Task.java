@@ -19,7 +19,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 import static javax.persistence.GenerationType.IDENTITY;
 import static javax.persistence.TemporalType.TIMESTAMP;
@@ -58,7 +58,7 @@ public class Task {
 
     @ManyToMany
     @JoinColumn(name = "label_id")
-    private List<Label> labels;
+    private Set<Label> labels;
 
     @CreationTimestamp
     @Temporal(TIMESTAMP)
