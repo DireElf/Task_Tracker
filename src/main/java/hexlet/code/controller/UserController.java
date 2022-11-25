@@ -39,10 +39,10 @@ public class UserController {
 
     private final UserService userService;
     private final UserRepository userRepository;
-    
+
     private static final String ONLY_OWNER_BY_ID = """
-                @userRepository.findById(#id).get().getEmail() == authentication.getName()
-            """;
+            @userRepository.findById(#id).get().getEmail() == authentication.getName()
+        """;
 
     @Operation(summary = "Get a user")
     @GetMapping(ID)
