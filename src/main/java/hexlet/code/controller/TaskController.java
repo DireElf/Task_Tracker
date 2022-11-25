@@ -40,8 +40,9 @@ public class TaskController {
     private final TaskService taskService;
     private final TaskRepository taskRepository;
 
-    private static final String ONLY_OWNER_BY_ID =
-            "@taskRepository.findById(#id).get().getAuthor().getEmail() == authentication.getName()";
+    private static final String ONLY_OWNER_BY_ID ="""
+        @taskRepository.findById(#id).get().getAuthor().getEmail() == authentication.getName()
+        """;
 
     @Operation(summary = "Get task")
     @GetMapping(ID)
