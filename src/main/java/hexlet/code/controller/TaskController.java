@@ -5,6 +5,11 @@ import hexlet.code.dto.TaskDto;
 import hexlet.code.model.Task;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,11 +43,17 @@ public class TaskController {
     private static final String ONLY_OWNER_BY_ID =
             "@taskRepository.findById(#id).get().getAuthor().getEmail() == authentication.getName()";
 
+    @Operation(summary = "Get task")
     @GetMapping(ID)
     public Optional<Task> getTask(@PathVariable long id) throws NoSuchElementException {
         return taskRepository.findById(id);
     }
 
+    @Operation(summary = "Get all tasks by filter")
+    @ApiResponses(@ApiResponse(responseCode = "200", content =
+        @Content(schema =
+        @Schema(implementation = Task.class))
+        ))
     @GetMapping("")
     public Iterable<Task> getFilteredTasks(
             @QuerydslPredicate(root = Task.class) Predicate predicate
@@ -50,18 +61,22 @@ public class TaskController {
         return taskRepository.findAll(predicate);
     }
 
+    @Operation(summary = "Create new task")
+    @ApiResponse(responseCode = "201", description = "Task created")
     @PostMapping("")
     @ResponseStatus(CREATED)
     public Task createTask(@RequestBody @Valid TaskDto taskDto) {
         return taskService.createTask(taskDto);
     }
 
+    @Operation(summary = "Update task")
     @PutMapping(ID)
     @PreAuthorize(ONLY_OWNER_BY_ID)
     public Task updateTask(@PathVariable long id, @RequestBody @Valid TaskDto dto) {
         return taskService.updateTask(id, dto);
     }
 
+    @Operation(summary = "Delete task")
     @DeleteMapping(ID)
     @PreAuthorize(ONLY_OWNER_BY_ID)
     public void deleteTask(@PathVariable long id) {
