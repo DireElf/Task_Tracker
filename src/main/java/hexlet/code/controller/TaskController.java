@@ -40,7 +40,7 @@ public class TaskController {
     private final TaskService taskService;
     private final TaskRepository taskRepository;
 
-    private static final String ONLY_OWNER_BY_ID ="""
+    private static final String ONLY_OWNER_BY_ID = """
         @taskRepository.findById(#id).get().getAuthor().getEmail() == authentication.getName()
         """;
 
@@ -72,7 +72,7 @@ public class TaskController {
 
     @Operation(summary = "Update task")
     @PutMapping(ID)
-    @PreAuthorize(ONLY_OWNER_BY_ID)
+//    @PreAuthorize(ONLY_OWNER_BY_ID)
     public Task updateTask(@PathVariable long id, @RequestBody @Valid TaskDto dto) {
         return taskService.updateTask(id, dto);
     }
