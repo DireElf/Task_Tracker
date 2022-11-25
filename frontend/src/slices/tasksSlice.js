@@ -1,28 +1,26 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
 
-import _ from 'lodash';
+import getLogger from '../lib/logger.js';
 
-const initialState = { tasks: [] };
+const log = getLogger('slice tasks');
+log.enabled = true;
 
-const tasksSlice = createSlice({
+const adapter = createEntityAdapter();
+const initialState = adapter.getInitialState();
+
+export const tasksSlice = createSlice({
   name: 'tasks',
   initialState,
   reducers: {
-    setInitialStateTasks(state, { payload: tasks }) {
-      state.tasks = tasks;
+    addTasks: adapter.addMany,
+    addTask: adapter.addOne,
+    updateTask(state, { payload }) {
+      adapter.updateOne(state, { id: payload.id, changes: payload });
     },
-    addTask(state, { payload: task }) {
-      state.tasks.push(task);
-    },
-    editTask(state, { payload: task }) {
-      //
-    },
-    removeTask(state, { payload: task }) {
-      _.remove(state.tasks, ({ id }) => id === task.id);
-    },
+    removeTask: adapter.removeOne,
   },
-})
+});
 
+export const selectors = adapter.getSelectors((state) => state.tasks);
 export const { actions } = tasksSlice;
 export default tasksSlice.reducer;
-

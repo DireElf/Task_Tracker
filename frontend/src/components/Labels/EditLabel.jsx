@@ -1,19 +1,18 @@
 // @ts-check
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Form, Button } from 'react-bootstrap';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { useParams, useHistory } from 'react-router-dom';
 import axios from 'axios';
-import { useHistory } from 'react-router-dom';
 
-import { actions as postsActions } from '../../slices/postsSlice.js';
-
+import { actions as labelsActions } from '../../slices/labelsSlice.js';
+import handleError from '../../utils.js';
 import routes from '../../routes.js';
 import { useAuth, useNotify } from '../../hooks/index.js';
-import handleError from '../../utils.js';
 
 import getLogger from '../../lib/logger.js';
 
@@ -21,38 +20,52 @@ const log = getLogger('client');
 
 const getValidationSchema = () => yup.object().shape({});
 
-const NewPost = () => {
+const EditLabel = () => {
   const { t } = useTranslation();
+  const params = useParams();
   const history = useHistory();
   const auth = useAuth();
   const notify = useNotify();
+  const [label, setLabel] = useState(null);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data } = await axios.get(routes.apiLabel(params.labelId),
+          { headers: auth.getAuthHeader() });
+        setLabel(data);
+      } catch (e) {
+        handleError(e, notify, history);
+      }
+    };
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const f = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      title: '',
-      body: '',
+      name: label ? label.name : '',
     },
     validationSchema: getValidationSchema(),
-    onSubmit: async ({ title, body }, { setSubmitting, setErrors }) => {
-      const post = { title, body };
+    onSubmit: async ({ name }, { setSubmitting, setErrors }) => {
+      const newLabel = { name };
       try {
-        log('post.create', post);
-
-        const { data } = await axios
-          .post(routes.apiPosts(), post, { headers: auth.getAuthHeader() });
-        dispatch(postsActions.addPost(data));
-
-        const from = { pathname: routes.postsPagePath() };
-        history.push(from, { message: 'postCreated' });
+        log('label.edit', label);
+        const { data } = await axios.put(routes.apiLabel(params.labelId),
+          newLabel, { headers: auth.getAuthHeader() });
+        dispatch(labelsActions.updateLabel(data));
+        const from = { pathname: routes.labelsPagePath() };
+        history.push(from, { message: 'labelEdited' });
       } catch (e) {
-        log('label.create.error', e);
+        log('label.edit.error', e);
         setSubmitting(false);
         if (e.response?.status === 422 && Array.isArray(e.response?.data)) {
           const errors = e.response.data
             .reduce((acc, err) => ({ ...acc, [err.field]: err.defaultMessage }), {});
           setErrors(errors);
-          notify.addError('postCreateFail');
+          notify.addError('labelEditFail');
         } else {
           handleError(e, notify, history, auth);
         }
@@ -62,51 +75,37 @@ const NewPost = () => {
     validateOnChange: false,
   });
 
+  if (!label) {
+    return null;
+  }
+
   return (
     <>
-      <h1 className="my-4">{t('postCreating')}</h1>
+      <h1 className="my-4">{t('labelEdit')}</h1>
       <Form onSubmit={f.handleSubmit}>
         <Form.Group className="mb-3">
-          <Form.Label htmlFor="title">{t('naming')}</Form.Label>
+          <Form.Label htmlFor="name">{t('naming')}</Form.Label>
           <Form.Control
             className="mb-2"
             disabled={f.isSubmitting}
             onChange={f.handleChange}
             onBlur={f.handleBlur}
-            value={f.values.title}
-            isInvalid={f.errors.title && f.touched.title}
-            name="title"
-            id="title"
+            value={f.values.name}
+            isInvalid={f.errors.name && f.touched.name}
+            name="name"
+            id="name"
             type="text"
           />
           <Form.Control.Feedback type="invalid">
-            {t(f.errors.title)}
-          </Form.Control.Feedback>
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label htmlFor="body">{t('Текст')}</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            className="mb-2"
-            disabled={f.isSubmitting}
-            onChange={f.handleChange}
-            onBlur={f.handleBlur}
-            value={f.values.body}
-            isInvalid={f.errors.body && f.touched.body}
-            name="body"
-            id="body"
-          />
-          <Form.Control.Feedback type="invalid">
-            {t(f.errors.body)}
+            {t(f.errors.name)}
           </Form.Control.Feedback>
         </Form.Group>
         <Button variant="primary" type="submit" disabled={f.isSubmitting}>
-          {t('create')}
+          {t('edit')}
         </Button>
       </Form>
     </>
   );
 };
 
-export default NewPost;
+export default EditLabel;

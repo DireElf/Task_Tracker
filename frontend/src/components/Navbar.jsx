@@ -25,7 +25,9 @@ const Navbar = () => {
         <Nav className="me-auto">
           <Link className="nav-link" to={routes.homePagePath()}>{t('hexletTodo')}</Link>
           <Link className="nav-link" to={routes.usersPagePath()}>{t('users')}</Link>
-          {!!user && <Link className="nav-link" to={routes.postsPagePath()}>{t('posts')}</Link>}
+          {!!user && <Link className="nav-link" to={routes.statusesPagePath()}>{t('statuses')}</Link>}
+          {!!user && <Link className="nav-link" to={routes.labelsPagePath()}>{t('labels')}</Link>}
+          {!!user && <Link className="nav-link" to={routes.tasksPagePath()}>{t('tasks')}</Link>}
         </Nav>
         <Nav className="justify-content-end">
           {user ? (

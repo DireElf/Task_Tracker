@@ -36,7 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles(SpringConfigForIT.TEST_PROFILE)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = SpringConfigForIT.class)
-
 public class TaskControllerTest {
 
     @Autowired
@@ -130,5 +129,22 @@ public class TaskControllerTest {
         utils.perform(delete(BASE_URL + TASK_CONTROLLER_PATH + ID, taskId), TEST_EMAIL_1)
                 .andExpect(status().isOk());
         assertThat(taskRepository.count()).isZero();
+    }
+
+
+    @Test
+    public void getFilteredTask() throws Exception {
+        utils.regDefaultTask(TEST_EMAIL_1);
+        Task task = taskRepository.findAll().get(0);
+        long statusId = task.getTaskStatus().getId();
+        long executorId = task.getExecutor().getId();
+        String queryString = String.format("/?taskStatus=%d&executorId=%d", statusId, executorId);
+        var response = utils.perform(
+                get(BASE_URL + TASK_CONTROLLER_PATH + queryString), TEST_EMAIL_1
+        ).andReturn().getResponse();
+
+        final Iterable<Task> tasks = fromJson(response.getContentAsString(), new TypeReference<>() {
+        });
+        assertThat(tasks).hasSize(1);
     }
 }

@@ -6,54 +6,51 @@ import { useTranslation } from 'react-i18next';
 import { Form, Button } from 'react-bootstrap';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { useHistory } from 'react-router-dom';
 import axios from 'axios';
-import { useParams, useHistory } from 'react-router-dom';
 
-import handleError from '../../utils.js';
-
-import { actions as commentsActions } from '../../slices/commentsSlice.js';
-
+import { actions as taskStatusesActions } from '../../slices/taskStatusesSlice.js';
 import routes from '../../routes.js';
 import { useAuth, useNotify } from '../../hooks/index.js';
 
+import handleError from '../../utils.js';
 import getLogger from '../../lib/logger.js';
 
 const log = getLogger('client');
 
 const getValidationSchema = () => yup.object().shape({});
 
-const NewComment = () => {
+const NewStatus = () => {
   const { t } = useTranslation();
-  const params = useParams();
-  const dispatch = useDispatch();
   const history = useHistory();
   const auth = useAuth();
   const notify = useNotify();
+  const dispatch = useDispatch();
 
   const f = useFormik({
     initialValues: {
-      body: '',
+      name: '',
     },
     validationSchema: getValidationSchema(),
-    onSubmit: async (data, { setSubmitting, setErrors }) => {
-      const comment = { body: data.body, postId: params.postId };
+    onSubmit: async ({ name }, { setSubmitting, setErrors }) => {
+      const status = { name };
       try {
-        log('comment.create', comment);
-
-        await axios.post(routes.apiComments(), comment, { headers: auth.getAuthHeader() });
-        dispatch(commentsActions.updateComment(data));
-        const from = { pathname: routes.postPagePath(params.postId) };
-        history.push(from, { message: 'commentCreated' });
+        log('status.create', status);
+        const { data } = await axios
+          .post(routes.apiStatuses(), status, { headers: auth.getAuthHeader() });
+        dispatch(taskStatusesActions.addTaskStatus(data));
+        const from = { pathname: routes.statusesPagePath() };
+        history.push(from, { message: 'statusCreated' });
       } catch (e) {
-        log('label.edit.error', e);
+        log('label.create.error', e);
         setSubmitting(false);
         if (e.response?.status === 422 && Array.isArray(e.response?.data)) {
           const errors = e.response.data
             .reduce((acc, err) => ({ ...acc, [err.field]: err.defaultMessage }), {});
           setErrors(errors);
-          notify.addError('commentCreateFail');
+          notify.addError('taskStatusCreateFail');
         } else {
-          handleError(e, notify, history);
+          handleError(e, notify, history, auth);
         }
       }
     },
@@ -63,27 +60,25 @@ const NewComment = () => {
 
   return (
     <>
-      <h1 className="my-4">{t('commentCreating')}</h1>
+      <h1 className="my-4">{t('statusCreating')}</h1>
       <Form onSubmit={f.handleSubmit}>
         <Form.Group className="mb-3">
-          <Form.Label>{t('naming')}</Form.Label>
+          <Form.Label htmlFor="name">{t('naming')}</Form.Label>
           <Form.Control
-            as="textarea"
             className="mb-2"
             disabled={f.isSubmitting}
             onChange={f.handleChange}
             onBlur={f.handleBlur}
-            value={f.values.body}
-            isInvalid={f.errors.body && f.touched.body}
-            name="body"
-            id="body"
+            value={f.values.name}
+            isInvalid={f.errors.name && f.touched.name}
+            name="name"
+            id="name"
             type="text"
           />
           <Form.Control.Feedback type="invalid">
-            {t(f.errors.body)}
+            {t(f.errors.name)}
           </Form.Control.Feedback>
         </Form.Group>
-
         <Button variant="primary" type="submit" disabled={f.isSubmitting}>
           {t('create')}
         </Button>
@@ -92,4 +87,4 @@ const NewComment = () => {
   );
 };
 
-export default NewComment;
+export default NewStatus;

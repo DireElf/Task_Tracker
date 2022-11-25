@@ -19,19 +19,25 @@ import NotFoundPage from './NotFoundPage.jsx';
 import UsersComponent from './Users/Users.jsx';
 import EditUser from './Users/EditUser.jsx';
 
-import Comments from './Comments/Comments.jsx';
-import EditComment from './Comments/EditComment.jsx';
-import NewComment from './Comments/NewComment.jsx';
+import Statuses from './Statuses/Statuses.jsx';
+import EditStatus from './Statuses/EditStatus.jsx';
+import NewStatus from './Statuses/NewStatus.jsx';
 
-import Post from './Posts/Post.jsx';
-import Posts from './Posts/Posts.jsx';
-import NewPost from './Posts/NewPost.jsx';
-import EditPost from './Posts/EditPost.jsx';
+import Labels from './Labels/Labels.jsx';
+import EditLabel from './Labels/EditLabel.jsx';
+import NewLabel from './Labels/NewLabel.jsx';
+
+import Task from './Tasks/Task.jsx';
+import Tasks from './Tasks/Tasks.jsx';
+import NewTask from './Tasks/NewTask.jsx';
+import EditTask from './Tasks/EditTask.jsx';
 
 import routes from '../routes.js';
 
 import { actions as usersActions } from '../slices/usersSlice.js';
-import { actions as postsActions } from '../slices/postsSlice.js';
+import { actions as labelsActions } from '../slices/labelsSlice.js';
+import { actions as taskStatusesActions } from '../slices/taskStatusesSlice.js';
+import { actions as tasksActions } from '../slices/tasksSlice.js';
 
 import { useNotify, useAuth } from '../hooks/index.js';
 import handleError from '../utils.js';
@@ -65,15 +71,42 @@ const App = () => {
         isSecurity: false,
       },
       {
-        name: 'posts',
+        name: 'labels',
         getData: async () => {
-          const { data } = await axios.get(routes.apiPosts(), { headers: auth.getAuthHeader() });
+          const { data } = await axios.get(routes.apiLabels(), { headers: auth.getAuthHeader() });
           if (!Array.isArray(data)) {
-            notify.addError('Сервер не вернул список постов');
-            dispatch(postsActions.addPosts([]));
+            notify.addError('Сервер не вернул список меток');
+            dispatch(labelsActions.addLabels([]));
             return;
           }
-          dispatch(postsActions.addPosts(data));
+          dispatch(labelsActions.addLabels(data));
+        },
+        isSecurity: true,
+      },
+      {
+        name: 'taskStatuses',
+        getData: async () => {
+          const { data } = await axios
+            .get(routes.apiStatuses(), { headers: auth.getAuthHeader() });
+          if (!Array.isArray(data)) {
+            notify.addError('Сервер не вернул список статусов');
+            dispatch(taskStatusesActions.addTaskStatuses([]));
+            return;
+          }
+          dispatch(taskStatusesActions.addTaskStatuses(data));
+        },
+        isSecurity: true,
+      },
+      {
+        name: 'tasks',
+        getData: async () => {
+          const { data } = await axios.get(routes.apiTasks(), { headers: auth.getAuthHeader() });
+          if (!Array.isArray(data)) {
+            notify.addError('Сервер не вернул список задач');
+            dispatch(tasksActions.addTasks([]));
+            return;
+          }
+          dispatch(tasksActions.addTasks(data));
         },
         isSecurity: true,
       },
@@ -115,27 +148,37 @@ const App = () => {
             <PrivateRoute><EditUser /></PrivateRoute>
           </Route>
 
-          <Route exact path={routes.commentsPagePath()}>
-            <PrivateRoute><Comments /></PrivateRoute>
+          <Route exact path={routes.statusesPagePath()}>
+            <PrivateRoute><Statuses /></PrivateRoute>
           </Route>
-          <Route path={routes.commentEditPagePath(':commentId')}>
-            <PrivateRoute><EditComment /></PrivateRoute>
+          <Route path={routes.newStatusPagePath()}>
+            <PrivateRoute><NewStatus /></PrivateRoute>
           </Route>
-          <Route path={routes.newCommentPagePath(':postId')}>
-            <PrivateRoute><NewComment /></PrivateRoute>
+          <Route path={routes.statusEditPagePath(':taskStatusId')}>
+            <PrivateRoute><EditStatus /></PrivateRoute>
           </Route>
 
-          <Route exact path={routes.postsPagePath()}>
-            <PrivateRoute><Posts /></PrivateRoute>
+          <Route exact path={routes.labelsPagePath()}>
+            <PrivateRoute><Labels /></PrivateRoute>
           </Route>
-          <Route path={routes.newPostPagePath()}>
-            <PrivateRoute><NewPost /></PrivateRoute>
+          <Route path={routes.labelEditPagePath(':labelId')}>
+            <PrivateRoute><EditLabel /></PrivateRoute>
           </Route>
-          <Route path={routes.postEditPagePath(':postId')}>
-            <PrivateRoute><EditPost /></PrivateRoute>
+          <Route path={routes.newLabelPagePath()}>
+            <PrivateRoute><NewLabel /></PrivateRoute>
           </Route>
-          <Route path={routes.postPagePath(':postId')}>
-            <PrivateRoute><Post /></PrivateRoute>
+
+          <Route exact path={routes.tasksPagePath()}>
+            <PrivateRoute><Tasks /></PrivateRoute>
+          </Route>
+          <Route path={routes.newTaskPagePath()}>
+            <PrivateRoute><NewTask /></PrivateRoute>
+          </Route>
+          <Route path={routes.taskEditPagePath(':taskId')}>
+            <PrivateRoute><EditTask /></PrivateRoute>
+          </Route>
+          <Route path={routes.taskPagePath(':taskId')}>
+            <PrivateRoute><Task /></PrivateRoute>
           </Route>
 
           <Route path="*" component={NotFoundPage} />

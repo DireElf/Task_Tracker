@@ -19,7 +19,7 @@ public class LoginDto {
 
     @NotBlank
     @Email
-    private String username;
+    private String email;
 
     @NotBlank
     @Size(min = 3)

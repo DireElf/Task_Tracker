@@ -15,6 +15,7 @@ import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
+import hexlet.code.service.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.test.web.servlet.MockMvc;
@@ -70,6 +71,9 @@ public class TestUtils {
 
     @Autowired
     private LabelRepository labelRepository;
+
+    @Autowired
+    private UserServiceImpl userService;
 
     public void tearDown() {
         // ordered execution
