@@ -10,9 +10,9 @@ jobs:
           distribution: temurin
           java-version: 17
       - name: run Gradle build
-        env:
-          ROLLBAR_TOKEN: ${{ROLLBAR_TOKEN}}
         run: make build
+        env:
+          ROLLBAR_TOKEN: ${{secrets.ROLLBAR_TOKEN}}
       - name: get coverage report
         uses: paambaati/codeclimate-action@v3.0.0
         env:
