@@ -35,7 +35,9 @@ dependencies {
             'com.querydsl:querydsl-core:5.0.0',
             'com.querydsl:querydsl-jpa:5.0.0',
             'io.jsonwebtoken:jjwt:0.9.1',
-            'org.springdoc:springdoc-openapi-ui:1.5.12'
+            'org.springdoc:springdoc-openapi-ui:1.5.12',
+            'com.rollbar:rollbar-spring-webmvc:1.8.1'
+
     )
 
     annotationProcessor(
