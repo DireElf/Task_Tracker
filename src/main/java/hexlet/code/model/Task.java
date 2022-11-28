@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -42,7 +42,6 @@ public class Task {
     @Size(min = 3, max = 1000)
     private String name;
 
-    @Nullable
     private String description;
 
     @NotNull
@@ -55,13 +54,11 @@ public class Task {
     @JoinColumn(name = "author_id")
     private User author;
 
-    @Nullable
     @ManyToOne
     @JoinColumn(name = "executor_id")
     private User executor;
 
-    @Nullable
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "label_id")
     private Set<Label> labels;
 

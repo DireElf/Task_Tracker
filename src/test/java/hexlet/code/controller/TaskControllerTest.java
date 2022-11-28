@@ -3,7 +3,9 @@ package hexlet.code.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import hexlet.code.config.SpringConfigForIT;
 import hexlet.code.dto.TaskDto;
+import hexlet.code.model.Label;
 import hexlet.code.model.Task;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +42,9 @@ public class TaskControllerTest {
 
     @Autowired
     private TaskRepository taskRepository;
+
+    @Autowired
+    private LabelRepository labelRepository;
 
     @Autowired
     private TestUtils utils;
@@ -138,13 +143,22 @@ public class TaskControllerTest {
         Task task = taskRepository.findAll().get(0);
         long statusId = task.getTaskStatus().getId();
         long executorId = task.getExecutor().getId();
-        String queryString = String.format("/?taskStatus=%d&executorId=%d", statusId, executorId);
+        Label label = labelRepository.findAll().get(0);
+        task.getLabels().add(label);
+        taskRepository.save(task);
+        long labelId = task.getLabels().stream()
+                .findFirst().get()
+                .getId();
+        String queryString = String.format("/?taskStatus=%d&executorId=%d&labels=%d",
+                statusId, executorId, labelId);
         var response = utils.perform(
                 get(BASE_URL + TASK_CONTROLLER_PATH + queryString), TEST_EMAIL_1
         ).andReturn().getResponse();
 
-        final Iterable<Task> tasks = fromJson(response.getContentAsString(), new TypeReference<>() {
-        });
-        assertThat(tasks).hasSize(1);
+        String responseBody = response.getContentAsString();
+        assertThat(responseBody)
+                .contains(task.getTaskStatus().getName())
+                .contains(task.getExecutor().getFirstName())
+                .contains(label.getName());
     }
 }
