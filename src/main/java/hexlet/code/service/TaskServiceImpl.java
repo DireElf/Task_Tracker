@@ -51,7 +51,16 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskStatus(taskStatusRepository.findById(dto.getTaskStatusId()).get());
         task.setAuthor(userService.getCurrentUser());
         task.setExecutor(userRepository.findById(dto.getExecutorId()).get());
+        if (dto.getLabelIds() != null) {
+            task.setLabels(getLabelsByIds(dto));
+        }
         return taskRepository.save(task);
+    }
+
+    private Set<Label> getLabelsByIds(TaskDto dto) {
+        return dto.getLabelIds().stream()
+                .map(id -> labelRepository.findById(id).get())
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -66,12 +75,6 @@ public class TaskServiceImpl implements TaskService {
             taskToUpdate.setLabels(getLabelsByIds(dto));
         }
         return taskRepository.save(taskToUpdate);
-    }
-
-    private Set<Label> getLabelsByIds(TaskDto dto) {
-        return dto.getLabelIds().stream()
-                .map(id -> labelRepository.findById(id).get())
-                .collect(Collectors.toSet());
     }
 
     @Override
