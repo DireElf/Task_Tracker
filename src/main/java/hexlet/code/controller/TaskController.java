@@ -70,7 +70,7 @@ public class TaskController {
 
     @Operation(summary = "Update task")
     @PutMapping(ID)
-//    @PreAuthorize(ONLY_OWNER_BY_ID)
+    @PreAuthorize(ONLY_OWNER_BY_ID)
     public Task updateTask(@PathVariable long id, @RequestBody @Valid TaskDto dto) {
         return taskService.updateTask(id, dto);
     }

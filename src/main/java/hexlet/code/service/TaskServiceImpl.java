@@ -3,11 +3,13 @@ package hexlet.code.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import hexlet.code.dto.TaskDto;
 import hexlet.code.model.Label;
+import hexlet.code.model.QTask;
 import hexlet.code.model.Task;
-import hexlet.code.model.TaskStatus;
-import hexlet.code.model.User;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
@@ -18,11 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -80,37 +77,24 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Iterable<Task> getFilteredTasks(Map<String, String> requestParams) throws JsonProcessingException {
 
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Task> taskCriteriaQuery = criteriaBuilder.createQuery(Task.class);
-        Root<Task> taskRoot = taskCriteriaQuery.from(Task.class);
-
-        List<Predicate> predicateList = new ArrayList<>();
+        QTask task = QTask.task;
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+        JPAQueryFactory factory = new JPAQueryFactory(entityManager);
+        JPAQuery<Task> query = factory.selectFrom(task);
 
         if (requestParams.get("taskStatus") != null) {
-            TaskStatus taskStatus = taskStatusRepository.findById(
-                    Long.parseLong(requestParams.get("taskStatus"))
-            ).get();
-            Predicate predicateForTaskStatus = criteriaBuilder.equal(
-                    taskRoot.get("taskStatus"), taskStatus);
-            predicateList.add(predicateForTaskStatus);
+            long taskStatusId = Long.parseLong(requestParams.get("taskStatus"));
+            booleanBuilder.and(task.taskStatus.id.eq(taskStatusId));
         }
 
         if (requestParams.get("executorId") != null) {
-            User executor = userRepository.findById(
-                    Long.parseLong(requestParams.get("executorId"))
-            ).get();
-            Predicate predicateForExecutor = criteriaBuilder.equal(
-                    taskRoot.get("executor"), executor);
-            predicateList.add(predicateForExecutor);
+            long executorId = Long.parseLong(requestParams.get("executorId"));
+            booleanBuilder.and(task.executor.id.eq(executorId));
         }
 
         if (requestParams.get("authorId") != null) {
-            User author = userRepository.findById(
-                    Long.parseLong(requestParams.get("authorId"))
-            ).get();
-            Predicate predicateForAuthor = criteriaBuilder.equal(
-                    taskRoot.get("author"), author);
-            predicateList.add(predicateForAuthor);
+            long authorId = Long.parseLong(requestParams.get("authorId"));
+            booleanBuilder.and(task.author.id.eq(authorId));
         }
 
         if (requestParams.get("labels") != null) {
@@ -119,28 +103,20 @@ public class TaskServiceImpl implements TaskService {
             List<Long> labelIds = Arrays.asList(
                     objectMapper.readValue(requestParams.get("labels"), Long[].class)
             );
-
-            labelIds
-                    .forEach(x -> {
-                        Label label = labelRepository.getById(x);
-                        CriteriaBuilder.In<Label> inClause = criteriaBuilder.in(taskRoot.get("labels"));
-                        inClause.value(label);
-                        criteriaBuilder.and(inClause);
-                    });
+            booleanBuilder.and(task.labels.any().id.in(labelIds));
         }
 
-        if (requestParams.get("isMyTasks") != null && Boolean.parseBoolean(requestParams.get("isMyTasks"))) {
-            Predicate predicateForMyTasks = criteriaBuilder.equal(
-                    taskRoot.get("author"), userService.getCurrentUser());
-            predicateList.add(predicateForMyTasks);
+        if (requestParams.get("isMyTasks") != null && requestParams.get("isMyTasks").equals("true")) {
+            long currentUserId = userService.getCurrentUser().getId();
+            booleanBuilder.and(task.author.id.eq(currentUserId));
         }
 
-        if (predicateList.isEmpty()) {
+        if (!booleanBuilder.hasValue()) {
             return taskRepository.findAll();
         }
 
-        Predicate combinedQuery = criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
-        taskCriteriaQuery.where(combinedQuery);
-        return entityManager.createQuery(taskCriteriaQuery).getResultList();
+        return query
+                .where(booleanBuilder)
+                .fetch();
     }
 }
