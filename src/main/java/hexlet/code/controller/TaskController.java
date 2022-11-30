@@ -1,16 +1,20 @@
 package hexlet.code.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import hexlet.code.dto.TaskDto;
 import hexlet.code.model.Task;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.service.TaskService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
@@ -41,14 +44,14 @@ public class TaskController {
     private final TaskService taskService;
     private final TaskRepository taskRepository;
 
-    private static final String ONLY_OWNER_BY_ID = """
+    private static final String ONLY_AUTHOR_BY_ID = """
         @taskRepository.findById(#id).get().getAuthor().getEmail() == authentication.getName()
         """;
 
-    @Operation(summary = "Get task")
+    @Operation(summary = "Get task by ID")
     @GetMapping(ID)
-    public Optional<Task> getTask(@PathVariable long id) throws NoSuchElementException {
-        return taskRepository.findById(id);
+    public Task getTask(@PathVariable long id) throws NoSuchElementException {
+        return taskRepository.findById(id).get();
     }
 
     @Operation(summary = "Get all tasks by filter")
@@ -57,10 +60,12 @@ public class TaskController {
         @Schema(implementation = Task.class))
         ))
     @GetMapping("")
-    public Iterable<Task> getFilteredTasks(@RequestParam Map<String, String> params) throws JsonProcessingException {
+    public Iterable<Task> getFilteredTasks(
+            @RequestParam(required = false) Map<String, String> params
+    ) throws JsonProcessingException {
         return params.isEmpty() ? taskRepository.findAll() : taskService.getFilteredTasks(params);
     }
-    @Operation(summary = "Create new task")
+    @Operation(summary = "Create a new task")
     @ApiResponse(responseCode = "201", description = "Task created")
     @PostMapping("")
     @ResponseStatus(CREATED)
@@ -68,16 +73,15 @@ public class TaskController {
         return taskService.createTask(taskDto);
     }
 
-    @Operation(summary = "Update task")
+    @Operation(summary = "Update task by ID")
     @PutMapping(ID)
-    @PreAuthorize(ONLY_OWNER_BY_ID)
     public Task updateTask(@PathVariable long id, @RequestBody @Valid TaskDto dto) {
         return taskService.updateTask(id, dto);
     }
 
-    @Operation(summary = "Delete task")
+    @Operation(summary = "Delete task by ID")
     @DeleteMapping(ID)
-    @PreAuthorize(ONLY_OWNER_BY_ID)
+    @PreAuthorize(ONLY_AUTHOR_BY_ID)
     public void deleteTask(@PathVariable long id) {
         taskRepository.deleteById(id);
     }

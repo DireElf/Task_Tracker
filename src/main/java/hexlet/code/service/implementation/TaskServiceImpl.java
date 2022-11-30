@@ -1,4 +1,4 @@
-package hexlet.code.service;
+package hexlet.code.service.implementation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -14,6 +14,8 @@ import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
+import hexlet.code.service.TaskService;
+import hexlet.code.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -82,18 +85,18 @@ public class TaskServiceImpl implements TaskService {
         JPAQueryFactory factory = new JPAQueryFactory(entityManager);
         JPAQuery<Task> query = factory.selectFrom(task);
 
-        if (requestParams.get("taskStatus") != null) {
-            long taskStatusId = Long.parseLong(requestParams.get("taskStatus"));
+        long taskStatusId = getParameter("taskStatus", requestParams);
+        if (taskStatusId > 0) {
             booleanBuilder.and(task.taskStatus.id.eq(taskStatusId));
         }
 
-        if (requestParams.get("executorId") != null) {
-            long executorId = Long.parseLong(requestParams.get("executorId"));
+        long executorId = getParameter("executorId", requestParams);
+        if (executorId > 0) {
             booleanBuilder.and(task.executor.id.eq(executorId));
         }
 
-        if (requestParams.get("authorId") != null) {
-            long authorId = Long.parseLong(requestParams.get("authorId"));
+        long authorId = getParameter("authorId", requestParams);
+        if (authorId > 0) {
             booleanBuilder.and(task.author.id.eq(authorId));
         }
 
@@ -118,5 +121,11 @@ public class TaskServiceImpl implements TaskService {
         return query
                 .where(booleanBuilder)
                 .fetch();
+    }
+
+    private long getParameter(String paramName, Map<String, String> requestParams) {
+        return Long.parseLong(Optional.ofNullable(
+                requestParams.get(paramName)
+        ).orElseGet(() -> "-1"));
     }
 }
