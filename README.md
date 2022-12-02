@@ -8,7 +8,7 @@
 
 [API docs (Swagger)](https://java-project-73-production-3677.up.railway.app/swagger-ui.html)
 
-The app allows you to create and manage tasks by assigning statuses, assigning performers, and setting labels. Supports authentication with tokens (Bearer) and password encryption
+The app allows you to create and manage tasks by assigning statuses, assigning executors, and setting labels. Authentication with tokens (Bearer) and password encryption are supported.
 
 Created using Spring Boot (web, data, security, validation), Liquibase and Hibernate. CodeClimate and Rollbar are connected for code quality and error analysis. H2 database is used for development, PostgreSQL for production.
 
