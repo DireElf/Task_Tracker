@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.Optional;
 
 import static hexlet.code.config.security.SecurityConfig.DEFAULT_AUTHORITIES;
@@ -38,7 +39,8 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(final HttpServletRequest request,
                                     final HttpServletResponse response,
-                                    final FilterChain filterChain) throws ServletException, IOException {
+                                    final FilterChain filterChain)
+            throws ServletException, IOException, AccessDeniedException {
 
         final var authToken = Optional.ofNullable(request.getHeader(AUTHORIZATION))
                 .map(header -> header.replaceFirst("^" + BEARER, ""))
@@ -46,8 +48,8 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                 .map(jwtHelper::verify)
                 .map(claims -> claims.get(SPRING_SECURITY_FORM_USERNAME_KEY))
                 .map(Object::toString)
-                .map(username -> buildAuthToken(username))
-                .orElseThrow();
+                .map(this::buildAuthToken)
+                .orElseThrow(() -> new AccessDeniedException("Unauthorized"));
 
 
         SecurityContextHolder.getContext().setAuthentication(authToken);

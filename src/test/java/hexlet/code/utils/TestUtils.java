@@ -36,18 +36,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @Component
 public class TestUtils {
     public static final String BASE_URL = "/api";
-    public static final String TEST_EMAIL_1 = "email@email.com";
-    public static final String TEST_EMAIL_2 = "email2@email.com";
+    public static final String DEFAULT_USER_EMAIL = "email@email.com";
     public static final String TEST_STATUS_1 = "status1";
     public static final String TEST_STATUS_2 = "status2";
     public static final String TEST_LABEL_1 = "label1";
     public static final String TEST_LABEL_2 = "label2";
 
     private final UserDto testUserDto = new UserDto(
-            TEST_EMAIL_1,
-            "fname",
-            "lname",
-            "pwd"
+            DEFAULT_USER_EMAIL,
+            "Firstname",
+            "Lastname",
+            "password"
     );
 
     private final TaskStatusDto testTaskStatusDto = new TaskStatusDto(TEST_STATUS_1);
@@ -74,14 +73,6 @@ public class TestUtils {
 
     @Autowired
     private UserServiceImpl userService;
-
-    public void tearDown() {
-        // ordered execution
-        taskRepository.deleteAll();
-        taskStatusRepository.deleteAll();
-        labelRepository.deleteAll();
-        userRepository.deleteAll();
-    }
 
     // User utils
 
@@ -124,6 +115,10 @@ public class TestUtils {
 
     // TaskStatus utils
 
+    public TaskStatusDto getTaskStatusDto() {
+        return testTaskStatusDto;
+    }
+
     public ResultActions regDefaultStatus(final String byUser) throws Exception {
         return regStatus(testTaskStatusDto, byUser);
     }
@@ -140,8 +135,8 @@ public class TestUtils {
 
     public ResultActions regDefaultTask(final String byUser) throws Exception {
         regDefaultUser();
-        regDefaultStatus(TEST_EMAIL_1);
-        regDefaultLabel(TEST_EMAIL_1);
+        regDefaultStatus(DEFAULT_USER_EMAIL);
+        regDefaultLabel(DEFAULT_USER_EMAIL);
 
         final User user = userRepository.findAll().get(0);
         final TaskStatus taskStatus = taskStatusRepository.findAll().get(0);

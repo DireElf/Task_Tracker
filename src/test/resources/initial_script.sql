@@ -1,0 +1,25 @@
+-- All users in table 'users' have password "12345"
+SET REFERENTIAL_INTEGRITY FALSE;
+TRUNCATE TABLE users RESTART IDENTITY;
+INSERT INTO users VALUES (1, '2022-11-30 19:34:46.76', 'jaime@lannister.com', 'Jaime', 'Lannister', '$2a$10$vHVuO6pegdSWXzz3KXdCmeU9Zrj/8IyvfaMY6JVV30TtO4T7MFUX2');
+INSERT INTO users VALUES (2, '2022-11-30 19:35:15.167', 'tirion@lannister.com', 'Tirion', 'Lannister', '$2a$10$Eq4fh/q0B6w8sbhY07q0zum1oB3Ipv3o.dP2RDoYKEpfnCFeubFs6');
+INSERT INTO users VALUES (3, '2022-11-30 19:35:45.071', 'bron@blackwater.com', 'Bron', 'Blackwater', '$2a$10$KGvmgxinXvV.Wz2qEdM85OCzJQ0mKG9w.CdI4kzCjdhOQwDyuF6au');
+TRUNCATE TABLE task_statuses RESTART IDENTITY;
+INSERT INTO task_statuses VALUES (1, '2022-11-30 19:49:21.906', 'Status1');
+INSERT INTO task_statuses VALUES (2, '2022-11-30 19:49:28.373',	'Status2');
+INSERT INTO task_statuses VALUES (3, '2022-11-30 19:49:33.649',	'Status3');
+TRUNCATE TABLE labels RESTART IDENTITY;
+INSERT INTO labels VALUES (1, '2022-11-30 19:53:46.923', 'Label1');
+INSERT INTO labels VALUES (2, '2022-11-30 19:53:53.458', 'Label2');
+INSERT INTO labels VALUES (3, '2022-11-30 19:53:59.664', 'Label3');
+TRUNCATE TABLE tasks RESTART IDENTITY;
+INSERT INTO tasks VALUES (1, '2022-11-30 19:58:06.97', 'Description1', 'Task1', 1, 1, 1);
+INSERT INTO tasks VALUES (2, '2022-11-30 19:59:08.407',	'Description2',	'Task2', 2, 2, 2);
+INSERT INTO tasks VALUES (3, '2022-11-30 20:00:06.396', 'Description3', 'Task3', 3, 1, 1);
+TRUNCATE TABLE tasks_labels RESTART IDENTITY;
+INSERT INTO tasks_labels VALUES (1, 1);
+INSERT INTO tasks_labels VALUES (2, 2);
+INSERT INTO tasks_labels VALUES (3, 1);
+INSERT INTO tasks_labels VALUES (3, 2);
+INSERT INTO tasks_labels VALUES (3, 3);
+SET REFERENTIAL_INTEGRITY TRUE;
