@@ -6,4 +6,10 @@
 
 [Production](https://java-project-73-production-3677.up.railway.app/)
 
-[API docs](https://java-project-73-production-3677.up.railway.app/swagger-ui.html)
+[API docs (Swagger)](https://java-project-73-production-3677.up.railway.app/swagger-ui.html)
+
+The app allows you to create and manage tasks by assigning statuses, assigning performers, and setting labels. Supports authentication with tokens (Bearer) and password encryption
+
+Created using Spring Boot (web, data, security, validation), Liquibase and Hibernate. CodeClimate and Rollbar are connected for code quality and error analysis. H2 database is used for development, PostgreSQL for production.
+
+[List of control commands](https://github.com/DireElf/java-project-73/blob/main/Makefile) (can be used with or without Make utility)
