@@ -12,4 +12,4 @@ The app allows you to create and manage tasks by assigning statuses, assigning e
 
 Created using Spring Boot (web, data, security, validation), Liquibase and Hibernate. CodeClimate and Rollbar are connected for code quality and error analysis. H2 database is used for development, PostgreSQL for production.
 
-[List of control commands](https://github.com/DireElf/java-project-73/blob/main/Makefile) (can be used with or without Make utility)
+[List of control commands](https://github.com/DireElf/java-project-73/blob/main/Makefile)
