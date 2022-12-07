@@ -66,18 +66,18 @@
         <addUniqueConstraint columnNames="email" constraintName="UC_USERSEMAIL_COL" tableName="users"/>
     </changeSet>
     <changeSet author="direelf (generated)" id="1669179827369-10">
-        <addForeignKeyConstraint baseColumnNames="labels_id" baseTableName="tasks_labels" constraintName="FK1jqo1eikgg8xnhi58yp81b8nl" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="labels" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="labels_id" baseTableName="tasks_labels" constraintName="FK_TASK_LABELS_LABELS_ID_COL" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="labels" validate="true"/>
     </changeSet>
     <changeSet author="direelf (generated)" id="1669179827369-11">
-        <addForeignKeyConstraint baseColumnNames="task_status_id" baseTableName="tasks" constraintName="FK7xndk7y2uk29wdu734xyutbqe" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="task_statuses" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="task_status_id" baseTableName="tasks" constraintName="FK_TASKS_TASK_STATUSES_ID_COL" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="task_statuses" validate="true"/>
     </changeSet>
     <changeSet author="direelf (generated)" id="1669179827369-12">
-        <addForeignKeyConstraint baseColumnNames="task_id" baseTableName="tasks_labels" constraintName="FK9qrs86gyw7ctgqiwqvr9jkf0l" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="tasks" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="task_id" baseTableName="tasks_labels" constraintName="FK_TASKS_LABELS_TASKS_ID_COL" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="tasks" validate="true"/>
     </changeSet>
     <changeSet author="direelf (generated)" id="1669179827369-13">
-        <addForeignKeyConstraint baseColumnNames="executor_id" baseTableName="tasks" constraintName="FKbrg922bkqn5m7212jsqjg6ioe" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="executor_id" baseTableName="tasks" constraintName="FK_TASKS_EXECUTORS_ID_COL" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="users" validate="true"/>
     </changeSet>
     <changeSet author="direelf (generated)" id="1669179827369-14">
-        <addForeignKeyConstraint baseColumnNames="author_id" baseTableName="tasks" constraintName="FKhods8r8oyyx7tuj3c91ki2sk1" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="users" validate="true"/>
+        <addForeignKeyConstraint baseColumnNames="author_id" baseTableName="tasks" constraintName="FK_TASKS_AUTHORS_ID_COL" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="users" validate="true"/>
     </changeSet>
 </databaseChangeLog>
