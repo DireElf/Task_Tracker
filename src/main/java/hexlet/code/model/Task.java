@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -46,20 +47,20 @@ public class Task {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "task_status_id")
+    @JoinColumn(name = "task_status_id", foreignKey = @ForeignKey(name = "FK_TASKS_TASK_STATUSES_ID_COL"))
     private TaskStatus taskStatus;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "author_id", foreignKey = @ForeignKey(name = "FK_TASKS_AUTHORS_ID_COL"))
     private User author;
 
     @ManyToOne
-    @JoinColumn(name = "executor_id")
+    @JoinColumn(name = "executor_id", foreignKey = @ForeignKey(name = "FK_TASKS_EXECUTORS_ID_COL"))
     private User executor;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "label_id")
+    @JoinColumn(name = "label_id", foreignKey = @ForeignKey(name = "FK_TASK_LABELS_LABELS_ID_COL"))
     private Set<Label> labels;
 
     @CreationTimestamp
