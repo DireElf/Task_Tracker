@@ -38,9 +38,7 @@ public class TestUtils {
     public static final String BASE_URL = "/api";
     public static final String DEFAULT_USER_EMAIL = "email@email.com";
     public static final String TEST_STATUS_1 = "status1";
-    public static final String TEST_STATUS_2 = "status2";
     public static final String TEST_LABEL_1 = "label1";
-    public static final String TEST_LABEL_2 = "label2";
 
     private final UserDto testUserDto = new UserDto(
             DEFAULT_USER_EMAIL,

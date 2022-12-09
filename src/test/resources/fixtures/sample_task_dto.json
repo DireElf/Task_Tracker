@@ -1,0 +1,7 @@
+{
+  "name": "Task name",
+  "description": "Task description",
+  "taskStatusId": 1,
+  "executorId": 1,
+  "labelIds": [1,2]
+}
