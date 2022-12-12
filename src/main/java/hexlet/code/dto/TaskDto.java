@@ -15,7 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TaskDto {
+public final class TaskDto implements Transferable {
     @NotBlank
     @Size(min = 3, max = 1000)
     private String name;

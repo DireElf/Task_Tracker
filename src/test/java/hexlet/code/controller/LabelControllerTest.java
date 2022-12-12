@@ -7,7 +7,6 @@ import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.utils.TestUtils;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,6 @@ import java.util.List;
 import static hexlet.code.controller.LabelController.LABEL_CONTROLLER_PATH;
 import static hexlet.code.controller.UserController.ID;
 import static hexlet.code.utils.TestUtils.BASE_URL;
-import static hexlet.code.utils.TestUtils.TEST_LABEL_1;
 import static hexlet.code.utils.TestUtils.asJson;
 import static hexlet.code.utils.TestUtils.fromJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(value = {"/script/after.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class LabelControllerTest {
 
+    private final LabelDto sampleLabel = new LabelDto("Sample label");
+
     @Autowired
     private LabelRepository labelRepository;
 
@@ -57,7 +57,8 @@ public class LabelControllerTest {
         final long entriesAmountBefore = labelRepository.count();
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
 
-        utils.regDefaultLabel(existingUserEmail).andExpect(status().isCreated());
+        utils.regEntity(sampleLabel, existingUserEmail, LABEL_CONTROLLER_PATH)
+                .andExpect(status().isCreated());
 
         assertThat(labelRepository.count()).isEqualTo(entriesAmountBefore + 1);
     }
@@ -103,11 +104,13 @@ public class LabelControllerTest {
     public void twiceRegTheSameLabel() throws Exception {
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
 
-        utils.regDefaultLabel(existingUserEmail).andExpect(status().isCreated());
+        utils.regEntity(sampleLabel, existingUserEmail, LABEL_CONTROLLER_PATH)
+                .andExpect(status().isCreated());
 
         final long expectedEntriesAmount = labelRepository.count();
 
-        utils.regDefaultLabel(existingUserEmail).andExpect(status().isUnprocessableEntity());
+        utils.regEntity(sampleLabel, existingUserEmail, LABEL_CONTROLLER_PATH)
+                .andExpect(status().isUnprocessableEntity());
 
         assertThat(labelRepository.count()).isEqualTo(expectedEntriesAmount);
     }
@@ -117,16 +120,14 @@ public class LabelControllerTest {
         final long existingLabelId = labelRepository.findAll().get(0).getId();
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
 
-        LabelDto labelDto = new LabelDto(TEST_LABEL_1);
-
         MockHttpServletRequestBuilder updateRequest =
                 put(BASE_URL + LABEL_CONTROLLER_PATH + ID, existingLabelId)
-                        .content(asJson(labelDto))
+                        .content(asJson(sampleLabel))
                         .contentType(APPLICATION_JSON);
 
         utils.perform(updateRequest, existingUserEmail).andExpect(status().isOk());
         assertThat(labelRepository.findById(existingLabelId).get().getName())
-                .isEqualTo(TEST_LABEL_1);
+                .isEqualTo(sampleLabel.getName());
     }
 
     @Test
@@ -145,11 +146,12 @@ public class LabelControllerTest {
     @Test
     public void deleteLabel() throws Exception {
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
-        utils.regDefaultLabel(existingUserEmail);
+        utils.regEntity(sampleLabel, existingUserEmail, LABEL_CONTROLLER_PATH)
+                .andExpect(status().isCreated());
 
         final long entriesAmountBefore = labelRepository.count();
 
-        long labelId = labelRepository.findByName(TEST_LABEL_1).get().getId();
+        long labelId = labelRepository.findByName(sampleLabel.getName()).get().getId();
 
         utils.perform(delete(BASE_URL + LABEL_CONTROLLER_PATH + ID, labelId), existingUserEmail)
                 .andExpect(status().isOk());

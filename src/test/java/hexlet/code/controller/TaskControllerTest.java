@@ -4,15 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import hexlet.code.config.SpringConfigForIT;
 import hexlet.code.dto.TaskDto;
 import hexlet.code.model.Task;
-import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
-import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.utils.TestUtils;
-
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,18 +19,15 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 import static hexlet.code.controller.TaskController.TASK_CONTROLLER_PATH;
 import static hexlet.code.controller.UserController.ID;
 import static hexlet.code.utils.TestUtils.BASE_URL;
-import static hexlet.code.utils.TestUtils.DEFAULT_USER_EMAIL;
 import static hexlet.code.utils.TestUtils.asJson;
 import static hexlet.code.utils.TestUtils.fromJson;
-
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -49,25 +43,32 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(value = {"/script/after.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class TaskControllerTest {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    private static final String TASK_DTO_FIXTURE = "sample_task_dto.json";
+
+    private static TaskDto sampleTaskDto;
 
     @Autowired
-    private LabelRepository labelRepository;
+    private TaskRepository taskRepository;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private TaskStatusRepository taskStatusRepository;
-
-    @Autowired
     private TestUtils utils;
+
+    @BeforeAll
+    public static void getTaskDto() throws IOException {
+        String taskDtoJson = TestUtils.readFixtureJson(TASK_DTO_FIXTURE);
+        sampleTaskDto = fromJson(taskDtoJson, new TypeReference<>() {
+        });
+    }
 
     @Test
     public void registration() throws Exception {
+        final String existingUserEmail = userRepository.findAll().get(0).getEmail();
         final long entriesAmountBefore = taskRepository.count();
-        utils.regDefaultTask(DEFAULT_USER_EMAIL).andExpect(status().isCreated());
+        utils.regEntity(sampleTaskDto, existingUserEmail, TASK_CONTROLLER_PATH)
+                .andExpect(status().isCreated());
         assertThat(taskRepository.count()).isEqualTo(entriesAmountBefore + 1);
     }
 
@@ -110,11 +111,13 @@ public class TaskControllerTest {
     public void twiceRegTheSameTaskFail() throws Exception {
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
 
-        utils.regDefaultTask(existingUserEmail).andExpect(status().isCreated());
+        utils.regEntity(sampleTaskDto, existingUserEmail, TASK_CONTROLLER_PATH)
+                .andExpect(status().isCreated());
 
         final long expectedEntriesAmount = taskRepository.count();
 
-        utils.regDefaultTask(existingUserEmail).andExpect(status().isUnprocessableEntity());
+        utils.regEntity(sampleTaskDto, existingUserEmail, TASK_CONTROLLER_PATH)
+                .andExpect(status().isUnprocessableEntity());
 
         assertThat(taskRepository.count()).isEqualTo(expectedEntriesAmount);
     }
@@ -125,27 +128,15 @@ public class TaskControllerTest {
         long taskToUpdateId = taskToUpdate.getId();
         final String authorEmail = taskToUpdate.getAuthor().getEmail();
 
-        final long newStatusId = taskStatusRepository.findAll().get(1).getId();
-        final long newExecutorId = userRepository.findAll().get(1).getId();
-        final long newLabelId = labelRepository.findAll().get(1).getId();
-
-        TaskDto testTaskDto = new TaskDto(
-                "New name",
-                "New description",
-                newStatusId,
-                newExecutorId,
-                Set.of(newLabelId)
-        );
-
         MockHttpServletRequestBuilder updateRequest = put(BASE_URL + TASK_CONTROLLER_PATH + ID,
                 taskToUpdateId)
-                .content(asJson(testTaskDto))
+                .content(asJson(sampleTaskDto))
                 .contentType(APPLICATION_JSON);
 
         utils.perform(updateRequest, authorEmail).andExpect(status().isOk());
         assertThat(taskRepository.existsById(taskToUpdateId)).isTrue();
         assertThat(taskRepository.findByName(taskToUpdate.getName())).isEmpty();
-        assertThat(taskRepository.findByName(testTaskDto.getName())).isPresent();
+        assertThat(taskRepository.findByName(sampleTaskDto.getName())).isPresent();
     }
 
     @Test

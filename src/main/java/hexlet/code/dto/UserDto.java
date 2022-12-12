@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class UserDto {
+public final class UserDto implements Transferable {
     @NotBlank
     @Email
     private String email;

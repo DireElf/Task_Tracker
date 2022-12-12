@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LabelDto {
+public final class LabelDto implements Transferable {
     @NotBlank
     @Size(min = 3, max = 1000)
     private String name;

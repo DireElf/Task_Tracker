@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class LoginDto {
+public final class LoginDto implements Transferable {
 
     @NotBlank
     @Email

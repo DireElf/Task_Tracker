@@ -7,7 +7,6 @@ import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.utils.TestUtils;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +23,13 @@ import java.util.List;
 import static hexlet.code.controller.TaskStatusController.STATUS_CONTROLLER_PATH;
 import static hexlet.code.controller.UserController.ID;
 import static hexlet.code.utils.TestUtils.BASE_URL;
-import static hexlet.code.utils.TestUtils.TEST_STATUS_1;
 import static hexlet.code.utils.TestUtils.asJson;
 import static hexlet.code.utils.TestUtils.fromJson;
-
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,6 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(value = {"/script/before.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(value = {"/script/after.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public final class TaskStatusControllerTest {
+
+    private final TaskStatusDto sampleTaskStatus = new TaskStatusDto("Sample status");
 
     @Autowired
     private TaskStatusRepository taskStatusRepository;
@@ -60,7 +57,7 @@ public final class TaskStatusControllerTest {
         final long entriesAmountBefore = taskStatusRepository.count();
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
 
-        utils.regDefaultStatus(existingUserEmail).andExpect(status().isCreated());
+        utils.regEntity(sampleTaskStatus, existingUserEmail, STATUS_CONTROLLER_PATH);
 
         assertThat(taskStatusRepository.count()).isEqualTo(entriesAmountBefore + 1);
     }
@@ -92,7 +89,7 @@ public final class TaskStatusControllerTest {
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
 
         MockHttpServletResponse response = utils.perform(
-                get(BASE_URL + STATUS_CONTROLLER_PATH), existingUserEmail)
+                        get(BASE_URL + STATUS_CONTROLLER_PATH), existingUserEmail)
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
@@ -106,11 +103,13 @@ public final class TaskStatusControllerTest {
     void twiceRegTheSameStatusFail() throws Exception {
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
 
-        utils.regDefaultStatus(existingUserEmail).andExpect(status().isCreated());
+        utils.regEntity(sampleTaskStatus, existingUserEmail, STATUS_CONTROLLER_PATH)
+                .andExpect(status().isCreated());
 
         final long expectedEntriesAmount = taskStatusRepository.count();
 
-        utils.regDefaultStatus(existingUserEmail).andExpect(status().isUnprocessableEntity());
+        utils.regEntity(sampleTaskStatus, existingUserEmail, STATUS_CONTROLLER_PATH)
+                .andExpect(status().isUnprocessableEntity());
 
         assertThat(taskStatusRepository.count()).isEqualTo(expectedEntriesAmount);
     }
@@ -120,25 +119,26 @@ public final class TaskStatusControllerTest {
         final long existingStatusId = taskStatusRepository.findAll().get(0).getId();
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
 
-        TaskStatusDto statusDto = new TaskStatusDto(TEST_STATUS_1);
-
         MockHttpServletRequestBuilder updateRequest =
                 put(BASE_URL + STATUS_CONTROLLER_PATH + ID, existingStatusId)
-                .content(asJson(statusDto))
-                .contentType(APPLICATION_JSON);
+                        .content(asJson(sampleTaskStatus))
+                        .contentType(APPLICATION_JSON);
 
         utils.perform(updateRequest, existingUserEmail).andExpect(status().isOk());
         assertThat(taskStatusRepository.findById(existingStatusId).get().getName())
-                .isEqualTo(TEST_STATUS_1);
+                .isEqualTo(sampleTaskStatus.getName());
     }
 
     @Test
     void deleteStatus() throws Exception {
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
-        utils.regDefaultStatus(existingUserEmail);
+
+        utils.regEntity(sampleTaskStatus, existingUserEmail, STATUS_CONTROLLER_PATH);
+
         final long entriesAmountBefore = taskStatusRepository.count();
 
-        long taskStatusId = taskStatusRepository.findByName(TEST_STATUS_1).get().getId();
+        long taskStatusId = taskStatusRepository
+                .findByName(sampleTaskStatus.getName()).get().getId();
 
         utils.perform(delete(BASE_URL + STATUS_CONTROLLER_PATH + ID, taskStatusId), existingUserEmail)
                 .andExpect(status().isOk());
@@ -148,10 +148,11 @@ public final class TaskStatusControllerTest {
     @Test
     void deleteAssignedStatus() throws Exception {
         final String existingUserEmail = userRepository.findAll().get(0).getEmail();
-        final long entriesAmountBefore = taskStatusRepository.count();
-        long existingAssignedStatusId = 1;
+        final long existingStatusId = taskStatusRepository.findAll().get(0).getId();
 
-        utils.perform(delete(BASE_URL + STATUS_CONTROLLER_PATH + ID, existingAssignedStatusId), existingUserEmail)
+        final long entriesAmountBefore = taskStatusRepository.count();
+
+        utils.perform(delete(BASE_URL + STATUS_CONTROLLER_PATH + ID, existingStatusId), existingUserEmail)
                 .andExpect(status().isUnprocessableEntity());
 
         assertThat(taskStatusRepository.count()).isEqualTo(entriesAmountBefore);
@@ -161,12 +162,8 @@ public final class TaskStatusControllerTest {
     void createByUnauthorized() throws Exception {
         final long entriesAmountBefore = taskStatusRepository.count();
 
-        MockHttpServletRequestBuilder request = post(BASE_URL + STATUS_CONTROLLER_PATH)
-                .content(asJson(utils.getTaskStatusDto()))
-                .contentType(APPLICATION_JSON);
-
         try {
-            utils.perform(request);
+            utils.regEntity(sampleTaskStatus, STATUS_CONTROLLER_PATH);
         } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo("Unauthorized");
         }
@@ -179,11 +176,9 @@ public final class TaskStatusControllerTest {
         final String statusNameBefore = statusToUpdate.getName();
         final long existingStatusId = statusToUpdate.getId();
 
-        TaskStatusDto statusDto = new TaskStatusDto(TEST_STATUS_1);
-
         MockHttpServletRequestBuilder updateRequest =
                 put(BASE_URL + STATUS_CONTROLLER_PATH + ID, existingStatusId)
-                        .content(asJson(statusDto))
+                        .content(asJson(sampleTaskStatus))
                         .contentType(APPLICATION_JSON);
 
         try {

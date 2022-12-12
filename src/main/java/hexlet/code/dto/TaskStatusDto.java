@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TaskStatusDto {
+public final class TaskStatusDto implements Transferable {
     @NotBlank
     @Size(min = 3, max = 1000)
     private String name;
