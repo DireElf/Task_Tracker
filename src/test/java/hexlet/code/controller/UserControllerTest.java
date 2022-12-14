@@ -2,12 +2,17 @@ package hexlet.code.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import hexlet.code.config.SpringConfigForIT;
+import hexlet.code.dto.LabelDto;
 import hexlet.code.dto.LoginDto;
+import hexlet.code.dto.TaskDto;
+import hexlet.code.dto.TaskStatusDto;
 import hexlet.code.dto.UserDto;
 import hexlet.code.model.User;
+import hexlet.code.repository.LabelRepository;
+import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.utils.TestUtils;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +20,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import static hexlet.code.config.security.SecurityConfig.LOGIN;
-import static hexlet.code.controller.UserController.ID;
+import static hexlet.code.controller.LabelController.LABEL_CONTROLLER_PATH;
+import static hexlet.code.controller.TaskController.TASK_CONTROLLER_PATH;
+import static hexlet.code.controller.TaskStatusController.STATUS_CONTROLLER_PATH;
 import static hexlet.code.controller.UserController.USER_CONTROLLER_PATH;
+import static hexlet.code.controller.UserController.ID;
 import static hexlet.code.utils.TestUtils.BASE_URL;
 import static hexlet.code.utils.TestUtils.asJson;
 import static hexlet.code.utils.TestUtils.fromJson;
@@ -41,38 +48,53 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles(SpringConfigForIT.TEST_PROFILE)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = SpringConfigForIT.class)
-@Sql(value = {"/script/before.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(value = {"/script/after.sql"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public final class UserControllerTest {
+public class UserControllerTest {
 
-    private static final String USER_DTO_FIXTURE = "sample_user_dto.json";
-    private static final String LOGIN_DTO_FIXTURE = "sample_login_dto.json";
-    private static final String DEFAULT_PASSWORD = "12345";
+    private static final UserDto SAMPLE_USER_DTO = TestUtils.fromJson(
+            TestUtils.readFixtureJson("sample_user_dto.json"),
+            new TypeReference<>() {
+            }
+    );
+    private static final UserDto ANOTHER_USER_DTO = TestUtils.fromJson(
+            TestUtils.readFixtureJson("another_user_dto.json"),
+            new TypeReference<>() {
+            }
+    );
 
-    private static UserDto sampleUserDto;
+    public static UserDto getSampleUserDto() {
+        return SAMPLE_USER_DTO;
+    }
+
+    public static UserDto getAnotherUserDto() {
+        return ANOTHER_USER_DTO;
+    }
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
+    private TaskStatusRepository taskStatusRepository;
+
+    @Autowired
+    private LabelRepository labelRepository;
+
+    @Autowired
     private TestUtils utils;
 
-    @BeforeAll
-    public static void getUserDto() throws IOException {
-        String userDtoJson = TestUtils.readFixtureJson(USER_DTO_FIXTURE);
-        sampleUserDto = fromJson(userDtoJson, new TypeReference<>() {
-        });
+    @BeforeEach
+    public void initialization() throws Exception {
+        utils.setUp();
     }
 
     @Test
     public void registration() throws Exception {
-        final long entriesBeforeReg = userRepository.count();
-        utils.regEntity(sampleUserDto, USER_CONTROLLER_PATH).andExpect(status().isCreated());
-        assertThat(userRepository.count()).isEqualTo(entriesBeforeReg + 1);
+        utils.regEntity(SAMPLE_USER_DTO, USER_CONTROLLER_PATH).andExpect(status().isCreated());
+        assertThat(userRepository.count()).isEqualTo(1);
     }
 
     @Test
     void getUserById() throws Exception {
+        utils.regEntity(SAMPLE_USER_DTO, USER_CONTROLLER_PATH);
         User expectedUser = userRepository.findAll().get(0);
 
         MockHttpServletResponse response = utils.perform(
@@ -90,7 +112,9 @@ public final class UserControllerTest {
 
     @Test
     void getAllUsers() throws Exception {
-        final long expectedEntriesAmount = userRepository.count();
+        utils.regEntity(SAMPLE_USER_DTO, USER_CONTROLLER_PATH);
+        utils.regEntity(ANOTHER_USER_DTO, USER_CONTROLLER_PATH);
+        long expectedCount = userRepository.count();
 
         MockHttpServletResponse response = utils.perform(get(BASE_URL + USER_CONTROLLER_PATH))
                 .andExpect(status().isOk())
@@ -99,27 +123,22 @@ public final class UserControllerTest {
 
         List<User> users = fromJson(response.getContentAsString(), new TypeReference<>() {
         });
-        assertThat((long) users.size()).isEqualTo(expectedEntriesAmount);
+        assertThat((long) users.size()).isEqualTo(expectedCount);
         assertThat(users.get(0).getPassword()).isNull();
     }
 
     @Test
     void regTheSameUser() throws Exception {
-        utils.regEntity(sampleUserDto, USER_CONTROLLER_PATH).andExpect(status().isCreated());
-        final long expectedEntriesAmount = userRepository.count();
-
-        utils.regEntity(sampleUserDto, USER_CONTROLLER_PATH).andExpect(status().isUnprocessableEntity());
-
-        assertThat(userRepository.count()).isEqualTo(expectedEntriesAmount);
+        utils.regEntity(SAMPLE_USER_DTO, USER_CONTROLLER_PATH).andExpect(status().isCreated());
+        long expectedCount = userRepository.count();
+        utils.regEntity(SAMPLE_USER_DTO, USER_CONTROLLER_PATH).andExpect(status().isUnprocessableEntity());
+        assertThat(userRepository.count()).isEqualTo(expectedCount);
     }
 
     @Test
     void login() throws Exception {
-        User user = userRepository.findAll().get(0);
-        LoginDto loginDto = new LoginDto(
-                user.getEmail(),
-                DEFAULT_PASSWORD
-        );
+        utils.regEntity(SAMPLE_USER_DTO, USER_CONTROLLER_PATH);
+        LoginDto loginDto = new LoginDto(SAMPLE_USER_DTO.getEmail(), SAMPLE_USER_DTO.getPassword());
 
         MockHttpServletRequestBuilder loginRequest =
                 post(BASE_URL + LOGIN).content(asJson(loginDto)).contentType(APPLICATION_JSON);
@@ -129,9 +148,11 @@ public final class UserControllerTest {
 
     @Test
     void loginUnregistered() throws Exception {
-        String loginDtoJson = TestUtils.readFixtureJson(LOGIN_DTO_FIXTURE);
-        LoginDto loginDto = fromJson(loginDtoJson, new TypeReference<>() {
-        });
+        LoginDto loginDto = new LoginDto(
+                ANOTHER_USER_DTO.getEmail(),
+                ANOTHER_USER_DTO.getPassword()
+        );
+
         MockHttpServletRequestBuilder loginRequest =
                 post(BASE_URL + LOGIN).content(asJson(loginDto)).contentType(APPLICATION_JSON);
 
@@ -140,60 +161,67 @@ public final class UserControllerTest {
 
     @Test
     void updateUser() throws Exception {
+        utils.regEntity(SAMPLE_USER_DTO, USER_CONTROLLER_PATH);
         User userToUpdate = userRepository.findAll().get(0);
 
         MockHttpServletRequestBuilder updateRequest =
                 put(BASE_URL + USER_CONTROLLER_PATH + ID, userToUpdate.getId())
-                        .content(asJson(sampleUserDto))
+                        .content(asJson(ANOTHER_USER_DTO))
                         .contentType(APPLICATION_JSON);
 
         utils.perform(updateRequest, userToUpdate.getEmail()).andExpect(status().isOk());
-
         assertThat(userRepository.findById(userToUpdate.getId())).isPresent();
-
         String oldEmail = userToUpdate.getEmail();
         assertThat(userRepository.findByEmail(oldEmail)).isEmpty();
-
-        assertThat(userRepository.findByEmail(sampleUserDto.getEmail())).isPresent();
+        assertThat(userRepository.findByEmail(ANOTHER_USER_DTO.getEmail())).isPresent();
     }
 
     @Test
     void deleteUser() throws Exception {
-        utils.regEntity(sampleUserDto, USER_CONTROLLER_PATH).andExpect(status().isCreated());
-        final long entriesAmountBefore = userRepository.count();
+        utils.regEntity(SAMPLE_USER_DTO, USER_CONTROLLER_PATH);
+        long countBefore = userRepository.count();
+        User userToDelete = userRepository.findAll().get(0);
 
-        User userToDelete = userRepository.findByEmail(sampleUserDto.getEmail()).get();
-        long userToDeleteId = userToDelete.getId();
-
-        utils.perform(delete(BASE_URL + USER_CONTROLLER_PATH + ID, userToDeleteId), sampleUserDto.getEmail())
+        utils.perform(delete(BASE_URL + USER_CONTROLLER_PATH + ID, userToDelete.getId()), userToDelete.getEmail())
                 .andExpect(status().isOk());
 
-        assertThat(userRepository.count()).isEqualTo(entriesAmountBefore - 1);
+        assertThat(userRepository.count()).isEqualTo(countBefore - 1);
     }
 
     @Test
     void deleteUserWithAssignedTask() throws Exception {
+        utils.regEntity(SAMPLE_USER_DTO, USER_CONTROLLER_PATH);
         User existingUser = userRepository.findAll().get(0);
-        final long existingUserWithTaskId = existingUser.getId();
+        utils.regEntity(new TaskStatusDto("Sample status"), existingUser.getEmail(), STATUS_CONTROLLER_PATH);
+        utils.regEntity(new LabelDto("Sample label"), existingUser.getEmail(), LABEL_CONTROLLER_PATH);
+        TaskDto taskDto = new TaskDto(
+                "Task name",
+                "Task description",
+                taskStatusRepository.findAll().get(0).getId(),
+                userRepository.findAll().get(0).getId(),
+                Set.of(labelRepository.findAll().get(0).getId())
+        );
+        utils.regEntity(taskDto, existingUser.getEmail(), TASK_CONTROLLER_PATH);
+        long executorId = existingUser.getId();
+        long countBefore = userRepository.count();
 
-        final long entriesAmountBefore = userRepository.count();
-
-        utils.perform(delete(BASE_URL + USER_CONTROLLER_PATH + ID, existingUserWithTaskId), existingUser.getEmail())
+        utils.perform(delete(BASE_URL + USER_CONTROLLER_PATH + ID, executorId), existingUser.getEmail())
                 .andExpect(status().isUnprocessableEntity());
 
-        assertThat(userRepository.count()).isEqualTo(entriesAmountBefore);
+        assertThat(userRepository.count()).isEqualTo(countBefore);
     }
 
     @Test
     void deleteUserByAnother() throws Exception {
-        long userToDelete = userRepository.findAll().get(0).getId();
-        utils.regEntity(sampleUserDto, USER_CONTROLLER_PATH).andExpect(status().isCreated());
+        utils.regEntity(SAMPLE_USER_DTO, USER_CONTROLLER_PATH);
+        utils.regEntity(ANOTHER_USER_DTO, USER_CONTROLLER_PATH);
+        User userToDelete = userRepository.findAll().get(0);
+        User actualUser = userRepository.findAll().get(1);
+        long countBefore = userRepository.count();
 
-        final long entriesAmountBefore = userRepository.count();
-
-        utils.perform(delete(BASE_URL + USER_CONTROLLER_PATH + ID, userToDelete), sampleUserDto.getEmail())
+        utils.perform(delete(BASE_URL + USER_CONTROLLER_PATH + ID, userToDelete.getId()), actualUser.getEmail())
                 .andExpect(status().isForbidden());
 
-        assertThat(userRepository.count()).isEqualTo(entriesAmountBefore);
+        assertThat(userRepository.count()).isEqualTo(countBefore);
     }
 }
