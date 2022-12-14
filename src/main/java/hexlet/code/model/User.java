@@ -5,19 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
 import javax.validation.constraints.NotBlank;
-import java.util.Date;
-
-import static javax.persistence.GenerationType.IDENTITY;
-import static javax.persistence.TemporalType.TIMESTAMP;
 
 @Entity
 @Getter
@@ -25,11 +17,7 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
-public final class User {
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    private Long id;
-
+public final class User extends BaseEntity {
     @Column(unique = true)
     @NotBlank
     private String email;
@@ -43,10 +31,6 @@ public final class User {
     @NotBlank
     @JsonIgnore
     private String password;
-
-    @CreationTimestamp
-    @Temporal(TIMESTAMP)
-    private Date createdAt;
 
     public User(Long aLong) {
     }
